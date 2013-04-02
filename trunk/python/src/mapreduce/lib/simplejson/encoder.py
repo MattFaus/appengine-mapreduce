@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """Implementation of JSONEncoder
 """
+import datetime
 import re
 
 try:
@@ -416,7 +417,11 @@ def _make_iterencode(markers, _default, _encoder, _indent, _floatstr, _key_separ
         elif isinstance(o, (list, tuple)):
             for chunk in _iterencode_list(o, _current_indent_level):
                 yield chunk
-        elif isinstance(o, dict):
+        elif isinstance(o, dict) or isinstance(o, datetime.date):
+            # TODO(mattfaus): Clean this up
+            if isinstance(o, datetime.date):
+                # Note that datetime.datetime objects fall into this block also
+                o = { "__datetime.date__": o.strftime('%Y-%m-%d') }
             for chunk in _iterencode_dict(o, _current_indent_level):
                 yield chunk
         else:

@@ -88,7 +88,15 @@ class JsonMixin(object):
     Returns:
       New instance of the class with data loaded from json string.
     """
-    return cls.from_json(simplejson.loads(json_str))
+    def object_hook(dct):
+      print 'GOT----', dct
+      if u'__datetime.date__' in dct:
+        # Convert to datetime.datetime for datastore to recognize it
+        date = datetime.datetime.strptime(dct[u'__datetime.date__'] , '%Y-%m-%d')
+        return date
+      return dct
+
+    return cls.from_json(simplejson.loads(json_str, object_hook=object_hook))
 
 
 class JsonProperty(db.UnindexedProperty):
